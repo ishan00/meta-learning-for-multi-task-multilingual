@@ -88,29 +88,29 @@ DEVICE = torch.device("cuda" if args.cuda else "cpu")
 def load_data(task_lang):
 	[task, lang] = task_lang.split('_')
 	if task == 'qa':
-		train_corpus = CorpusQA(loc['train'][task_lang][0], args, loc['train'][task_lang][1])
-		dev_corpus = CorpusQA(loc['dev'][task_lang][0], args, loc['dev'][task_lang][1])
-		test_corpus = CorpusQA(loc['test'][task_lang][0], args, loc['test'][task_lang][1])
+		train_corpus = CorpusQA(loc['train'][task_lang][0], loc['train'][task_lang][1])
+		dev_corpus = CorpusQA(loc['dev'][task_lang][0], loc['dev'][task_lang][1])
+		test_corpus = CorpusQA(loc['test'][task_lang][0], loc['test'][task_lang][1])
 		batch_size = args.qa_batch_size
 	elif task == 'sc':
-		train_corpus = CorpusSC(loc['train'][task_lang][0], args, loc['train'][task_lang][1])
-		dev_corpus = CorpusSC(loc['dev'][task_lang][0], args, loc['dev'][task_lang][1])
-		test_corpus = CorpusSC(loc['test'][task_lang][0], args, loc['test'][task_lang][1])
+		train_corpus = CorpusSC(loc['train'][task_lang][0], loc['train'][task_lang][1])
+		dev_corpus = CorpusSC(loc['dev'][task_lang][0], loc['dev'][task_lang][1])
+		test_corpus = CorpusSC(loc['test'][task_lang][0], loc['test'][task_lang][1])
 		batch_size = args.sc_batch_size
 	elif task == 'tc':
-		train_corpus = CorpusTC(loc['train'][task_lang][0],args)
-		dev_corpus = CorpusTC(loc['dev'][task_lang][0],args)
-		test_corpus = CorpusTC(loc['test'][task_lang][0],args)
+		train_corpus = CorpusTC(loc['train'][task_lang][0])
+		dev_corpus = CorpusTC(loc['dev'][task_lang][0])
+		test_corpus = CorpusTC(loc['test'][task_lang][0])
 		batch_size = args.tc_batch_size
 	elif task == 'po':
-		train_corpus = CorpusPO(loc['train'][task_lang][0],args)
-		dev_corpus = CorpusPO(loc['dev'][task_lang][0],args)
-		test_corpus = CorpusPO(loc['test'][task_lang][0],args)
+		train_corpus = CorpusPO(loc['train'][task_lang][0])
+		dev_corpus = CorpusPO(loc['dev'][task_lang][0])
+		test_corpus = CorpusPO(loc['test'][task_lang][0])
 		batch_size = args.po_batch_size
 	elif task == 'pa':
-		train_corpus = CorpusPA(loc['train'][task_lang][0],args)
-		dev_corpus = CorpusPA(loc['dev'][task_lang][0],args)
-		test_corpus = CorpusPA(loc['test'][task_lang][0],args)
+		train_corpus = CorpusPA(loc['train'][task_lang][0])
+		dev_corpus = CorpusPA(loc['dev'][task_lang][0])
+		test_corpus = CorpusPA(loc['test'][task_lang][0])
 		batch_size = args.pa_batch_size
 
 	return train_corpus, dev_corpus, test_corpus, batch_size
@@ -167,18 +167,6 @@ def train(model, task, data):
 
 	to_return /= len(data)
 	return to_return
-
-def evaluate(model, task, data):
-	with torch.no_grad():
-		total_loss = 0.0
-		correct = 0.0
-		total = 0.0
-		for j,batch in enumerate(data):
-			output = model.forward(task,batch)
-			loss = output[0].mean()
-			total_loss += loss.item()
-		total_loss /= len(data)
-		return total_loss
 
 def test():
 	model.eval()
@@ -259,7 +247,7 @@ def main():
 
 		with open(os.path.join(args.save,'log.pickle'),'wb') as g:
 			pickle.dump(logger,g)
-		
+
 		test()
 
 	except KeyboardInterrupt:
@@ -268,7 +256,7 @@ def main():
 
 		with open(os.path.join(args.save,'log.pickle'),'wb') as g:
 			pickle.dump(logger,g)
-			
+
 		test()
 
 if __name__ == '__main__':

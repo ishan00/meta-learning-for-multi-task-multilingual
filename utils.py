@@ -10,31 +10,6 @@ import torch.nn as nn
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-class Mentor(nn.Module):
-    def __init__(self, nb_classes):
-        super(Mentor, self).__init__()
-
-        self.label_emb = nn.Embedding(nb_classes, 2)
-        self.percent_emb = nn.Embedding(100, 5)
-
-        self.lstm = nn.LSTM(2, 10, bidirectional=True)
-        self.fc1 = nn.Linear(27, 20)
-        self.fc2 = nn.Linear(20, 1)
-
-    def forward(self, data):
-        label, pt, l = data
-        x_label = self.label_emb(label)
-        x_percent = self.percent_emb(pt)
-        h0 = torch.rand(2, label.size(0), 10).to(DEVICE)
-        c0 = torch.rand(2, label.size(0), 10).to(DEVICE)
-
-        output, (hn,cn) = self.lstm(l, (h0,c0))
-        output = output.sum(0).squeeze()
-        x = torch.cat((x_label, x_percent, output), dim=1)
-        z = torch.tanh(self.fc1(x))
-        z = torch.sigmoid(self.fc2(z))
-        return z
-
 class SquadResult(object):
 	def __init__(self, unique_id, start_logits, end_logits, start_top_index=None, end_top_index=None, cls_logits=None):
 		self.start_logits = start_logits
@@ -131,7 +106,7 @@ def evaluateNLI(model, data, device):
 		total_loss /= len(data)
 
 		return total_loss, correct / total#, matrix
-	
+
 def evaluatePA(model, data, device):
 	with torch.no_grad():
 		total_loss = 0.0
@@ -216,7 +191,7 @@ def evaluateRC(model,data,device):
 		total_loss = 0.0
 		correct = 0.0
 		total = 0.0
-		
+
 		for j,batch in enumerate(data):
 			batch['answer_tok_pos'] = batch['answer_tok_pos'].to(device)
 			output = model.forward('rc',batch)

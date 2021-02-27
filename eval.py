@@ -13,7 +13,7 @@ from itertools import cycle
 import matplotlib.pyplot as plt
 import pickle,json
 import copy
-import warnings 
+import warnings
 logging.getLogger("transformers.tokenization_utils").setLevel(logging.ERROR)
 warnings.filterwarnings("ignore")
 from datapath import loc
@@ -32,16 +32,6 @@ from transformers.data.metrics.squad_metrics import (
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--meta_lr', type=float, default=5e-5, help='meta learning rate')
-parser.add_argument('--dropout', type=float, default=0.1, help='')
-parser.add_argument('--hidden_dims', type=int, default=768, help='')
-
-parser.add_argument('--sc_labels', type=int, default=3, help='')
-parser.add_argument('--qa_labels', type=int, default=2, help='')
-parser.add_argument('--tc_labels', type=int, default=10, help='')
-parser.add_argument('--po_labels', type=int, default=18, help='')
-parser.add_argument('--pa_labels', type=int, default=2, help='')
-
 parser.add_argument('--qa_batch_size', type=int, default=8, help='batch size')
 parser.add_argument('--sc_batch_size', type=int, default=32, help='batch size')
 parser.add_argument('--tc_batch_size', type=int, default=32, help='batch size')
@@ -49,18 +39,13 @@ parser.add_argument('--po_batch_size', type=int, default=32, help='batch_size')
 parser.add_argument('--pa_batch_size', type=int, default=8, help='batch size')
 
 parser.add_argument('--seed', type=int, default=42, help='seed for numpy and pytorch')
-parser.add_argument('--log_interval', type=int, default=500, help='Print after every log_interval batches')
 parser.add_argument('--cuda', action='store_true',help='use CUDA')
 parser.add_argument('--save', type=str, default='saved/', help='')
 parser.add_argument('--load', type=str, default='', help='')
-parser.add_argument('--grad_clip', type=float, default=1.0)
-parser.add_argument('--meta_tasks', type=str, default='qa,sc,pa,po,tc')
+parser.add_argument('--eval_tasks', type=str, default='qa,sc,pa,po,tc')
 
 parser.add_argument("--n_best_size", default=20, type=int)
 parser.add_argument("--max_answer_length", default=30, type=int)
-parser.add_argument("--weight_decay", default=0.0, type=float, help="Weight decay if we apply some.")
-parser.add_argument("--warmup", default=0, type=int)
-parser.add_argument("--adam_epsilon", default=1e-8, type=float, help="Epsilon for Adam optimizer.")
 
 args = parser.parse_args()
 
@@ -79,7 +64,7 @@ if torch.cuda.is_available():
 
 DEVICE = torch.device("cuda" if args.cuda else "cpu")
 
-task_types = args.meta_tasks.split(',')
+task_types = args.eval_tasks.split(',')
 list_of_tasks = []
 
 for tt in loc['train'].keys():
@@ -93,15 +78,15 @@ test_corpus = {}
 
 for k in list_of_tasks:
 	if 'qa' in k:
-		test_corpus[k] = CorpusQA(loc['test'][k][0],args,loc['test'][k][1])
+		test_corpus[k] = CorpusQA(loc['test'][k][0],loc['test'][k][1])
 	elif 'sc' in k:
-		test_corpus[k] = CorpusSC(loc['test'][k][0],args,loc['test'][k][1])
+		test_corpus[k] = CorpusSC(loc['test'][k][0],loc['test'][k][1])
 	elif 'tc' in k:
-		test_corpus[k] = CorpusTC(loc['test'][k][0],args)
+		test_corpus[k] = CorpusTC(loc['test'][k][0])
 	elif 'po' in k:
-		test_corpus[k] = CorpusPO(loc['test'][k][0], args)
+		test_corpus[k] = CorpusPO(loc['test'][k][0])
 	elif 'pa' in k:
-		test_corpus[k] = CorpusPA(loc['test'][k][0],args)
+		test_corpus[k] = CorpusPA(loc['test'][k][0])
 
 test_dataloaders = {}
 
@@ -120,7 +105,7 @@ best_results = {k:float('-inf') for k in list_of_tasks}
 
 if args.load.count('.pt') > 0:
 	model = torch.load(args.load)
-	
+
 	for k in list_of_tasks:
 		if 'qa' in k:
 			result = evaluateQA(model, test_corpus[k], 'intermediate_test', args.save)
@@ -137,10 +122,10 @@ if args.load.count('.pt') > 0:
 		elif 'pa' in k:
 			test_loss, test_acc = evaluatePA(model, test_dataloaders[k], DEVICE)
 			best_results[k] = max(best_results[k],test_acc)
-	
+
 elif os.path.exists(os.path.join(args.load,'model.pt')):
 	model = torch.load(os.path.join(args.load, 'model.pt'))
-	
+
 	for k in list_of_tasks:
 		if 'qa' in k:
 			result = evaluateQA(model, test_corpus[k], 'intermediate_test', args.save)
@@ -192,22 +177,3 @@ else:
 print (args.load)
 for k in list_of_tasks:
 	print (k,'{:6.4f}'.format(best_results[k]))
-
-# for k in list_of_tasks:
-# 	if 'qa' in k:
-# 		result = evaluateQA(model, test_corpus[k], 'intermediate_test', args.save)
-# 		print (k,'val_f1 {:10.8f}'.format(result['f1']))
-# 	elif 'sc' in k:
-# 		test_loss, test_acc = evaluateNLI(model, test_dataloaders[k], DEVICE)
-# 		print (k,'test_loss {:10.8f} test_acc {:6.4f}'.format(test_loss, test_acc))
-# 	elif 'tc' in k:
-# 		test_loss, test_acc = evaluateNER(model, test_dataloaders[k], DEVICE)
-# 		print (k,'test_loss {:10.8f} test_acc {:6.4f}'.format(test_loss, test_acc))
-# 	elif 'rc' in k:
-# 		test_loss, test_acc = evaluateRC(model, test_dataloaders[k], DEVICE)
-# 		print (k,'test_loss {:10.8f} test_acc {:6.4f}'.format(test_loss, test_acc))
-# 	elif 'pa' in k:
-# 		test_loss, test_acc = evaluatePA(model, test_dataloaders[k], DEVICE)
-# 		print (k,'test_loss {:10.8f} test_acc {:6.4f}'.format(test_loss, test_acc))
-
-

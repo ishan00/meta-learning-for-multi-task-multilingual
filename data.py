@@ -15,7 +15,7 @@ import re
 
 class CorpusQA(Dataset):
 
-	def __init__(self, path, args, evaluate):
+	def __init__(self, path, evaluate):
 		self.cls_token = '[CLS]'
 		self.sep_token = '[SEP]'
 		self.pad_token = 0
@@ -82,7 +82,7 @@ class CorpusQA(Dataset):
 
 class CorpusSC(Dataset):
 
-	def __init__(self, path, args, file):
+	def __init__(self, path, file):
 		self.max_sequence_length = 128
 		self.cls_token = '[CLS]'
 		self.sep_token = '[SEP]'
@@ -220,7 +220,7 @@ class CorpusSC(Dataset):
 
 class CorpusPO(Dataset):
 
-	def __init__(self, path, args):
+	def __init__(self, path):
 		self.max_sequence_length = 128
 		self.cls_token = '[CLS]'
 		self.sep_token = '[SEP]'
@@ -349,11 +349,11 @@ class CorpusPO(Dataset):
 			'label_ids':self.data['label_ids'][id],
 			'mask':self.data['mask'][id],
 		}
-	
+
 
 class CorpusTC(Dataset):
 
-	def __init__(self, path, args):
+	def __init__(self, path):
 		self.max_sequence_length = 128
 		self.cls_token = '[CLS]'
 		self.sep_token = '[SEP]'
@@ -483,160 +483,9 @@ class CorpusTC(Dataset):
 			'mask':self.data['mask'][id],
 		}
 
-# class CorpusRC(Dataset):
-
-# 	def __init__(self, path, args):
-# 		self.max_sequence_length = 512
-# 		self.cls_token = '[CLS]'
-# 		self.sep_token = '[SEP]'
-# 		self.pad_token = 0
-# 		self.sequence_a_segment_id = 0
-# 		self.sequence_b_segment_id = 1
-# 		self.pad_token_segment_id = 0
-# 		self.cls_token_segment_id = 0
-# 		self.mask_padding_with_zero = True
-# 		self.doc_stride = 128
-# 		self.max_query_length = 64
-
-# 		self.batch_size = args.rc_batch_size
-
-# 		self.tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-cased', do_lower_case = False)
-
-# 		if os.path.exists(path + '.pickle'):
-# 			[self.data, self.context, self.token_to_orig] = pickle.load(open(path + '.pickle','rb'))
-# 		else:
-# 			self.data, self.context, self.token_to_orig = self.preprocess(path)
-# 			with open(path + '.pickle','wb') as f:
-# 				pickle.dump([self.data, self.context, self.token_to_orig],f,protocol=pickle.HIGHEST_PROTOCOL)
-
-# 	def preprocess(self, file):
-
-# 		id = 0
-# 		list_ids, list_input_ids, list_token_type_ids, list_attention_mask, list_answer_tok_pos, list_offset, list_length, list_original_text, list_of_token_to_orig = [], [], [], [], [], [], [], [], []
-
-# 		with open(file,'r') as f:
-# 			data = json.load(f)
-# 			for paragraph in tqdm(data["data"]):
-# 				context = paragraph["context"]
-# 				context_tokenized = self.tokenizer.tokenize(context)
-# 				question = re.sub(r"@placeholder","[MASK]",paragraph["query"])
-# 				question_tokenized = self.tokenizer.tokenize(question)
-
-# 				if len(question_tokenized) + len(context_tokenized) + 3 > self.max_sequence_length:
-# 					continue
-
-# 				answer_pos = paragraph["answer_pos"]
-# 				input_ids, attention_mask, segment_mask, answer_tok_pos, offset, length, token_to_orig = self.encode(question_tokenized, context, answer_pos)
-# 				assert len(input_ids) == self.max_sequence_length
-# 				assert len(segment_mask) == self.max_sequence_length
-# 				assert len(attention_mask) == self.max_sequence_length
-
-# 				list_ids.append(id)
-# 				list_input_ids.append(torch.unsqueeze(input_ids,0))
-# 				list_token_type_ids.append(torch.unsqueeze(segment_mask,0))
-# 				list_attention_mask.append(torch.unsqueeze(attention_mask,0))
-# 				list_answer_tok_pos.append(torch.unsqueeze(answer_tok_pos,0))
-# 				list_offset.append(offset)
-# 				list_length.append(length)
-# 				list_original_text.append([context, answer_pos])
-# 				list_of_token_to_orig.append(token_to_orig)
-# 				id += 1
-
-# 		print (id - 1)
-
-# 		list_ids = torch.tensor(list_ids)
-# 		list_input_ids = torch.cat(list_input_ids,dim=0)#.to(self.device)
-# 		list_token_type_ids = torch.cat(list_token_type_ids,dim=0)#.to(self.device)
-# 		list_attention_mask = torch.cat(list_attention_mask,dim=0)#.to(self.device)
-# 		list_answer_tok_pos = torch.cat(list_answer_tok_pos,dim=0)#.to(self.device)
-# 		list_offset = torch.tensor(list_offset)
-# 		list_length = torch.tensor(list_length)
-
-# 		dataset = {
-# 			'ids':list_ids,
-# 			'input_ids':list_input_ids,
-# 			'token_type_ids':list_token_type_ids,
-# 			'attention_mask':list_attention_mask,
-# 			'answer_tok_pos':list_answer_tok_pos,
-# 			'offsets':list_offset,
-# 			'lengths':list_length,
-# 		}
-
-# 		return dataset, list_original_text, list_of_token_to_orig
-
-# 	def encode(self, question, paragraph, answer_pos):
-
-# 		tokens = []
-# 		input_mask = []
-# 		segment_mask = []
-
-# 		tokens.append(self.cls_token)
-# 		segment_mask.append(self.cls_token_segment_id)
-# 		input_mask.append(1 if self.mask_padding_with_zero else 0)
-
-# 		for tok in question:
-# 			tokens.append(tok)
-# 			segment_mask.append(self.sequence_a_segment_id)
-# 			input_mask.append(1 if self.mask_padding_with_zero else 0)
-
-# 		tokens.append(self.sep_token)
-# 		segment_mask.append(self.sequence_a_segment_id)
-# 		input_mask.append(1 if self.mask_padding_with_zero else 0)
-
-# 		offset = len(tokens)
-
-# 		token_to_orig = []
-
-# 		for i,word in enumerate(paragraph.split(' ')):
-# 			list_of_token = self.tokenizer.tokenize(word)
-# 			if i == answer_pos:
-# 				answer_tok_pos = len(tokens)
-# 			for tok in list_of_token:
-# 				tokens.append(tok)
-# 				token_to_orig.append(i)
-# 				segment_mask.append(self.sequence_b_segment_id)
-# 				input_mask.append(1 if self.mask_padding_with_zero else 0)
-
-# 		length = len(tokens)
-
-# 		assert len(token_to_orig) == length - offset
-
-# 		tokens.append(self.sep_token)
-# 		segment_mask.append(self.sequence_b_segment_id)
-# 		input_mask.append(1 if self.mask_padding_with_zero else 0)
-
-# 		tokens = self.tokenizer.convert_tokens_to_ids(tokens)
-
-# 		while(len(tokens) < self.max_sequence_length):
-# 			tokens.append(self.pad_token)
-# 			segment_mask.append(self.pad_token_segment_id)
-# 			input_mask.append(0 if self.mask_padding_with_zero else 1)
-
-# 		tokens = torch.tensor(tokens)#.to(self.device)
-# 		input_mask = torch.tensor(input_mask)#.to(self.device)
-# 		segment_mask = torch.tensor(segment_mask)#.to(self.device)
-# 		answer_tok_pos = torch.tensor(answer_tok_pos)#.to(self.device)
-
-# 		return tokens, input_mask, segment_mask, answer_tok_pos, offset, length, token_to_orig
-
-# 	def __len__(self):
-# 		return len(self.data['ids'])
-
-# 	def __getitem__(self, id):
-
-# 		return {
-# 			'ids': self.data['ids'][id],
-# 			'input_ids':self.data['input_ids'][id],
-# 			'token_type_ids':self.data['token_type_ids'][id],
-# 			'attention_mask':self.data['attention_mask'][id],
-# 			'answer_tok_pos':self.data['answer_tok_pos'][id],
-# 			'offsets':self.data['offsets'][id],
-# 			'lengths':self.data['lengths'][id],
-# 		}
-
 class CorpusPA(Dataset):
 
-	def __init__(self, path, args):
+	def __init__(self, path):
 		self.max_sequence_length = 128
 		self.cls_token = '[CLS]'
 		self.sep_token = '[SEP]'

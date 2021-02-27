@@ -158,18 +158,6 @@ def train(model, task, data):
 	to_return /= len(data)
 	return to_return
 
-def evaluate(model, task, data):
-	with torch.no_grad():
-		total_loss = 0.0
-		correct = 0.0
-		total = 0.0
-		for j,batch in enumerate(data):
-			output = model.forward(task,batch)
-			loss = output[0].mean()
-			total_loss += loss.item()
-		total_loss /= len(data)
-		return total_loss
-
 def test():
 	model.eval()
 	if 'qa' in args.task:
@@ -249,7 +237,7 @@ def main():
 
 		with open(os.path.join(args.save,'log.pickle'),'wb') as g:
 			pickle.dump(logger,g)
-		
+
 		test()
 
 	except KeyboardInterrupt:
@@ -258,7 +246,7 @@ def main():
 
 		with open(os.path.join(args.save,'log.pickle'),'wb') as g:
 			pickle.dump(logger,g)
-			
+
 		test()
 
 if __name__ == '__main__':

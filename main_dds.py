@@ -53,7 +53,6 @@ parser.add_argument('--load', type=str, default='', help='')
 parser.add_argument('--grad_clip', type=float, default=5.0)
 parser.add_argument('--meta_tasks', type=str, default='sc,pa,qa,tc,po')
 
-parser.add_argument('--sampler',type=str,default='uniform_batch',choices=['uniform_batch'])
 parser.add_argument('--temp', type=float, default=1.0)
 parser.add_argument('--update_dds', type=int,default=10)
 parser.add_argument('--dds_lr', type=float,default=0.01)
@@ -159,7 +158,7 @@ for k in list_of_tasks:
 				args.pa_batch_size
 	train_dataloaders[k] = DataLoader(train_corpus[k], batch_size = batch_size, shuffle = True, pin_memory = True)
 	dev_dataloaders[k] = DataLoader(dev_corpus[k], batch_size = batch_size, pin_memory = True)
-	
+
 	psi_train_dataloaders[k] = DataLoader(train_corpus[k], batch_size = batch_size, pin_memory = True, sampler = RandomSampler(train_corpus[k]))
 	psi_dev_dataloaders[k] = DataLoader(dev_corpus[k], batch_size = batch_size, pin_memory = True, sampler = RandomSampler(dev_corpus[k]))
 
@@ -262,7 +261,7 @@ def multiDDSUpdate(init_p, list_of_tasks, curr_step, total_steps):
 
 	p = np.array([torch.exp(psis[x]).item() for x in list_of_tasks])
 	p = p/np.sum(p)
-	
+
 	if (curr_step+1)%args.update_dds == 0:
 		old_vars = []
 		for param in model.parameters():
@@ -307,13 +306,13 @@ def multiDDSUpdate(init_p, list_of_tasks, curr_step, total_steps):
 				g_dev = param.data.clone() - old_vars[idx].data.clone() - g_train[idx].data
 				dot_pdt += torch.sum(g_dev * g_train[idx])
 				sq_dev += torch.sum(g_dev * g_dev)
-			
+
 			reward = dot_pdt/torch.sqrt(sq_dev*sq_train)
 			rewards[train_task] += reward
-			
+
 			for idx,param in enumerate(model.parameters()):
 				param.data = old_vars[idx].data.clone()
-		
+
 		for train_task in list_of_tasks:
 			rewards[train_task] /= (args.K * len(list_of_dev_tasks))
 

@@ -42,10 +42,9 @@ for tt in list_of_tasks:
 		command_list.append(command.format(args.gpu,tt,os.path.join(args.load,'model_po.pt'),'3e-6','10',args.load,'model_po_ft_' + tt + '.pt'))
 # 		command_list.append(command.format(args.gpu,tt,os.path.join(args.load,'model_po.pt'),'3e-5','10',args.load,'model_po_ft_' + tt + '_2.pt'))
 
-# print (command_list)
 for cmd in command_list:
 	print (cmd)
-	
+
 eval_list = []
 os.system('touch {:s}'.format(os.path.join(args.load,'eval_results.txt')))
 eval_command = 'CUDA_VISIBLE_DEVICES={:d} python3 eval.py --meta_task {:s} --load {:s} >>{:s}'
@@ -54,6 +53,3 @@ for ft_models in os.listdir(args.load):
 	if ft_models.count('.pt') > 0 and ft_models.count('ft') > 0:
 		task = ft_models.split('.')[0].split('_')[3]
 		eval_list.append(eval_command.format(args.gpu,task,os.path.join(args.load,ft_models),os.path.join(args.load,'eval_results.txt')))
-
-# for cmd in eval_list:
-# 	print (cmd)
