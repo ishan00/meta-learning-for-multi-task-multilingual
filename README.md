@@ -1,5 +1,5 @@
 ## Meta-Learning for Effective Multi-task and Multilingual Modelling
-Authors : Ishan Tarunesh, Sushil Khyalia, Vishwajeet Kumar, Ganesh Ramakrishnan, Preethi Jyothi
+Link to the paper - https://arxiv.org/abs/2101.10368
 
 ### Abstract
 ```
@@ -12,11 +12,33 @@ six different languages from the XTREME multilingual benchmark dataset. Our meta
 performance compared to competitive baseline models that also include multi-task baselines. We also present zero-shot
 evaluations on unseen target languages to demonstrate the utility of our proposed model.
 ```
-### Dataset and Directory Structure
-### Running Meta-Learning Experiments
-### Multi-task & Zero-shot Experiments
 
-### 
-For any queries about the paper or implementation please contact <br>
+### Introduction
+
+
+
+### Dataset and Directory Structure
+
+We use the recently released [XTREME](https://github.com/google-research/xtreme) benchmark for dataset. We choose a subset of 5 tasks - Question Answering, Natural Language Answering, Paraphrase Identification, Part-of-Speech tagging and Named Entity Recognition and 6 languages - English, Hindi, French, Chinese, Spanish and German for our experiments. Later on for zero-shot result we use many other languages from these tasks. The authors of XTREME were kind enough to provide us with the in-house translated-train datasets whenever not publically available.
+
+`datapath.py` lists all dataset files used in the paper. The naming of datasets is done using XX_YY where XX is the task - Question Answering (qa), Natural language inference (sc), Paraphrase identification (pa), Part-of-speech tagging (po) and Named entity recognition (tc), and YY is the language - English (en), Hindi (hi),... etc
+
+### Running Meta-Learning Experiments
+
+#### Temperature Sampling
+#### DDS Sampling
+
+### Other Experiments
+#### Multi-task 
+#### Zero-shot Experiments
+
+We evaluate trained meta models in zero-shot setting on multiple languages for each task. The list of zero-shot languages for each task can be found in `datapath.py` file under the key `test`. The below command evaluates the model on NER for Tamil
+
+```
+python3 zeroshot.py --load PATH/TO/MODEL --task tc_ta
+```
+
+--------
+#### Contact
 Ishan Tarunesh - ishantarunesh@gmail.com <br>
 Sushil Khyalia - skhyalia2014@gmail.com
