@@ -23,12 +23,11 @@ We use the recently released [XTREME](https://github.com/google-research/xtreme)
 
 `datapath.py` lists all dataset files used in the paper. The naming of datasets is done using XX_YY where XX is the task - Question Answering (qa), Natural language inference (sc), Paraphrase identification (pa), Part-of-speech tagging (po) and Named entity recognition (tc), and YY is the language - English (en), Hindi (hi),... etc
 
-### Running Meta-Learning Experiments
+### Experiments
 
 #### Temperature Sampling
 #### DDS Sampling
-
-### Other Experiments
+#### Finetuning
 #### Multi-task 
 #### Zero-shot Experiments
 
