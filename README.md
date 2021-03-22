@@ -1,5 +1,6 @@
 ## Meta-Learning for Effective Multi-task and Multilingual Modelling
 Link to the paper - https://arxiv.org/abs/2101.10368
+(Appearing at EACL 2021 as Oral Presentation)
 
 ### Abstract
 <code>Natural language processing (NLP) tasks (e.g. question-answering in English) benefit from 
