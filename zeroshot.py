@@ -85,19 +85,19 @@ DEVICE = torch.device("cuda" if args.cuda else "cpu")
 def load_data(task_lang):
 	[task, lang] = task_lang.split('_')
 	if task == 'qa':
-		test_corpus = CorpusQA(loc['test'][task_lang][0], args, loc['test'][task_lang][1])
+		test_corpus = CorpusQA(loc['test'][task_lang][0], loc['test'][task_lang][1])
 		batch_size = args.qa_batch_size
 	elif task == 'sc':
-		test_corpus = CorpusSC(loc['test'][task_lang][0], args, loc['test'][task_lang][1])
+		test_corpus = CorpusSC(loc['test'][task_lang][0], loc['test'][task_lang][1])
 		batch_size = args.sc_batch_size
 	elif task == 'tc':
-		test_corpus = CorpusTC(loc['test'][task_lang][0],args)
+		test_corpus = CorpusTC(loc['test'][task_lang][0])
 		batch_size = args.tc_batch_size
 	elif task == 'po':
-		test_corpus = CorpusPO(loc['test'][task_lang][0],args)
+		test_corpus = CorpusPO(loc['test'][task_lang][0])
 		batch_size = args.po_batch_size
 	elif task == 'pa':
-		test_corpus = CorpusPA(loc['test'][task_lang][0],args)
+		test_corpus = CorpusPA(loc['test'][task_lang][0])
 		batch_size = args.pa_batch_size
 
 	return test_corpus, batch_size
