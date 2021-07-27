@@ -113,20 +113,20 @@ dev_corpus = {}
 
 for k in list_of_tasks:
 	if 'qa' in k:
-		train_corpus[k] = CorpusQA(loc['train'][k][0], args, loc['train'][k][1])
-		dev_corpus[k] = CorpusQA(loc['dev'][k][0], args, loc['dev'][k][1])
+		train_corpus[k] = CorpusQA(loc['train'][k][0], loc['train'][k][1])
+		dev_corpus[k] = CorpusQA(loc['dev'][k][0], loc['dev'][k][1])
 	elif 'sc' in k:
-		train_corpus[k] = CorpusSC(loc['train'][k][0], args, loc['train'][k][1])
-		dev_corpus[k] = CorpusSC(loc['dev'][k][0], args, loc['dev'][k][1])
+		train_corpus[k] = CorpusSC(loc['train'][k][0], loc['train'][k][1])
+		dev_corpus[k] = CorpusSC(loc['dev'][k][0], loc['dev'][k][1])
 	elif 'tc' in k:
-		train_corpus[k] = CorpusTC(loc['train'][k][0], args)
-		dev_corpus[k] = CorpusTC(loc['dev'][k][0], args)
+		train_corpus[k] = CorpusTC(loc['train'][k][0])
+		dev_corpus[k] = CorpusTC(loc['dev'][k][0])
 	elif 'po' in k:
-		train_corpus[k] = CorpusPO(loc['train'][k][0], args)
-		dev_corpus[k] = CorpusPO(loc['dev'][k][0], args)
+		train_corpus[k] = CorpusPO(loc['train'][k][0])
+		dev_corpus[k] = CorpusPO(loc['dev'][k][0])
 	elif 'pa' in k:
-		train_corpus[k] = CorpusPA(loc['train'][k][0], args)
-		dev_corpus[k] = CorpusPA(loc['dev'][k][0], args)
+		train_corpus[k] = CorpusPA(loc['train'][k][0])
+		dev_corpus[k] = CorpusPA(loc['dev'][k][0])
 
 train_dataloaders = {}
 dev_dataloaders = {}
